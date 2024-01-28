@@ -20,6 +20,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 
@@ -47,6 +49,7 @@ public class WeatherService {
         String url = apiUrl + "?q=" + city + "&appid=" + apiKey + "&units=metric";
         RestTemplate restTemplate = new RestTemplate();
         return restTemplate.getForObject(url, String.class);
+
     }
 
     public void save(String jsonData) {
@@ -82,6 +85,17 @@ public class WeatherService {
                 .visibility(weatherData.getVisibility()).build();
 
       weatherObjectRepository.save(weatherObject);
+    }
+
+
+    public Mono<String> callWeatherApi() {
+        String url = "http://localhost:8080/api/v1/weather?city=Seoul";
+        WebClient webClient = WebClient.builder().build();
+
+        return webClient.get()
+                .uri(url)
+                .retrieve()
+                .bodyToMono(String.class);
     }
 
 
